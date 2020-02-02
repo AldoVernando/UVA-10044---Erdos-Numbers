@@ -1,0 +1,162 @@
+#include<stdio.h>
+#include<iostream>
+#include<string.h>
+#include<queue>
+#include<string>
+#include<vector>
+
+using namespace std;
+
+int erdosNode = -1;
+int edges[10000][10000];
+
+struct node{
+ string name;
+ int val = -1;
+ int i;
+};
+
+vector<node> nodes; 
+queue<node> qnodes;
+
+int getNode(string name){
+ for(int i=0;i<nodes.size();i++){
+  if(name.compare(nodes.at(i).name) == 0){
+    return i;
+  }
+}
+ return -1;
+}
+
+int main(){
+ 
+ int scenario;
+ int paper , test;
+ 
+ scanf("%d",&scenario);
+ 
+ for(int z=0;z<scenario;z++){
+
+   erdosNode = -1;
+   nodes.clear();
+   
+   for(int i=0;i<1000;i++){
+    for(int h=0;h<1000;h++){
+     edges[i][h] = 0;
+    }
+ }
+   
+    scanf("%d %d",&paper,&test);
+  
+    char book[10000];
+   
+    string getName;
+    
+    gets(book);
+  
+    while (paper--) {
+      gets(book);
+      
+    int k = 0;
+	  string auth[10000] = {};
+	  int count = 0;
+    int len = strlen(book);
+     
+     while (k<len) {
+         getName = "";
+         while (k<len && book[k]==' ') k++;
+         if (k>=len) break;
+         while (book[k]!=',') getName += book[k++];
+         getName += book[k++];
+         while (book[k]!=',' && book[k]!=':') getName += book[k++];
+        
+         auth[count] = getName;
+         count++;
+         
+         if (k>=len || book[k]==':') break;
+         k++;
+         
+      }
+    
+    for(int i=0;i<count;i++){
+    
+     bool flag = false;
+     for(int j=0;j<nodes.size();j++){
+        
+      if(auth[i].compare(nodes.at(j).name)==0){
+       flag = true;
+      }  
+    } 
+      
+     if(!flag){
+      node n;
+      n.name = auth[i];
+      if(auth[i].compare("Erdos, P.")==0 && erdosNode == -1){
+       erdosNode = nodes.size();
+    n.val = 1;
+      }
+      n.i = nodes.size();
+      
+      nodes.push_back(n);
+      
+     }
+   }
+
+   for(int i=0;i<count;i++){
+    int n = getNode(auth[i]);
+    
+    for(int j=0;j<count;j++){
+     if(i != j){
+      int m = getNode(auth[j]);
+      edges[n][m] = 1;
+      edges[m][n] = 1;
+     }
+    }
+}
+}
+  
+  if(erdosNode != -1){
+   
+   qnodes.push(nodes.at(erdosNode));
+   
+   while(true){
+   	
+   	 if(qnodes.empty()) break;
+    
+     node now = qnodes.front();
+     qnodes.pop();
+     
+     for(int i=0;i<nodes.size();i++){
+      if(edges[now.i][i] == 1 && nodes.at(i).val == -1){
+
+       if(now.i == erdosNode)
+        nodes.at(i).val = now.val;
+       else
+        nodes.at(i).val = now.val+1;
+        
+       qnodes.push(nodes.at(i)); 
+       edges[now.i][i] = -1;
+       edges[i][now.i] = -1;
+   } 
+  }
+  
+   }
+   
+  for(int i=0;i<test;i++){
+     string name;
+   	getline(cin,name);
+   
+   int n = getNode(name);
+   if(i == 0)
+    printf("Scenario %d\n",z+1);
+     
+   if(n != -1 && nodes.at(n).val != -1)
+    cout << name << " " << nodes.at(n).val << endl;
+   else
+    cout << name << " infinity" << endl;
+  }
+ }
+}
+ 
+ return 0;
+}
